@@ -38,22 +38,19 @@ function parsePerformances(fileContent) {
         // 檢查是否為包含 YouTube 連結的行
         if (trimmedLine.includes("https://youtu.be/")) {
             const parts = trimmedLine.split(/\s+/); // 使用空白字符分割
-            // 找到第一個部分作為 session 名稱
             let sessionPart = parts[0]; 
             if (trimmedLine.includes("補錄")) {
                 currentSession = sessionPart + " 補錄";
             } else {
                 currentSession = sessionPart;
             }
-            // 找到最後一個部分作為 URL
             currentUrl = parts[parts.length - 1]; 
         } 
         // 檢查是否為歌曲時間戳記行 (非空且包含 ":" 且不以 "#" 開頭)
         else if (trimmedLine && trimmedLine.includes(":") && !trimmedLine.startsWith("#")) {
             try {
-                // 找出第一個空白字元作為時間戳記和歌名的分隔
                 const firstSpaceIndex = trimmedLine.indexOf(' ');
-                if (firstSpaceIndex === -1) continue; // 如果沒有空白字元，跳過
+                if (firstSpaceIndex === -1) continue; 
 
                 const timestamp = trimmedLine.substring(0, firstSpaceIndex);
                 const song = trimmedLine.substring(firstSpaceIndex + 1);
@@ -84,7 +81,7 @@ function searchSong(songName) {
     resultsDiv.innerHTML = ''; // 清空之前的結果
 
     if (!performancesData || Object.keys(performancesData).length === 0) {
-        resultsDiv.innerHTML = '<p>請先上傳 song_list.txt 檔案並等待解析。</p>';
+        resultsDiv.innerHTML = '<p>歌曲資料載入中或載入失敗，請稍後再試。</p>';
         return;
     }
 
@@ -96,6 +93,7 @@ function searchSong(songName) {
         foundPerformances.forEach(perf => {
             const li = document.createElement('li');
             const seconds = timeToSeconds(perf.timestamp);
+            // 注意：這裡假設 YouTube 連結的基礎部分是固定的，如果變動需要調整
             const youtubeUrl = `${perf.url}?t=${seconds}`;
             li.innerHTML = `${perf.session} - <a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
             ul.appendChild(li);
@@ -106,29 +104,30 @@ function searchSong(songName) {
     }
 }
 
-// 事件監聽器
+// 頁面載入時自動載入 song_list.txt
 document.addEventListener('DOMContentLoaded', () => {
-    const fileInput = document.getElementById('songListFile');
     const searchButton = document.getElementById('searchButton');
     const songNameInput = document.getElementById('songNameInput');
+    const resultsDiv = document.getElementById('searchResults');
 
-    // 處理檔案上傳
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    performancesData = parsePerformances(e.target.result);
-                    alert('song_list.txt 檔案已成功載入並解析！');
-                } catch (error) {
-                    alert('解析檔案時發生錯誤，請檢查檔案格式。');
-                    console.error('檔案解析錯誤:', error);
-                }
-            };
-            reader.readAsText(file, 'UTF-8'); // 指定 UTF-8 編碼
-        }
-    });
+    resultsDiv.innerHTML = '<p>載入歌曲資料中...</p>'; // 顯示載入狀態
+
+    fetch('song_list.txt')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            performancesData = parsePerformances(data);
+            resultsDiv.innerHTML = '<p>歌曲資料已載入，請輸入歌名搜尋。</p>';
+            console.log('song_list.txt 檔案成功載入並解析！');
+        })
+        .catch(error => {
+            resultsDiv.innerHTML = `<p>載入 song_list.txt 失敗，請確認檔案是否存在於相同目錄。錯誤: ${error.message}</p>`;
+            console.error('載入 song_list.txt 時發生錯誤:', error);
+        });
 
     // 處理搜尋按鈕點擊
     searchButton.addEventListener('click', () => {
