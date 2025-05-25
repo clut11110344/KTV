@@ -28,11 +28,11 @@
                     
                     # 讀取檔案內容
                     try:
+                        import pyodide
                         with open('song_list.txt', 'r', encoding='utf-8') as file:
-                            lines = file.readlines()
-                    except FileNotFoundError:
-                        print("找不到 song_list.txt 檔案")
-                        return {}
+                            content = file.read()
+                            lines = content.split('\n')
+                            print("成功讀取檔案，共有", len(lines), "行")
                     except Exception as e:
                         print(f"讀取檔案時發生錯誤：{str(e)}")
                         return {}
@@ -51,6 +51,7 @@
                                     else:
                                         current_session = parts[0]
                                     current_url = parts[-1]
+                                    print(f"處理到新的 session: {current_session}")
                             elif ":" in line and not line.startswith("#"):
                                 parts = line.split(" ", 1)
                                 if len(parts) == 2:
@@ -66,6 +67,7 @@
                             print(f"處理行時發生錯誤：{str(e)}")
                             continue
                     
+                    print(f"總共處理了 {len(performances)} 首歌曲")
                     return performances
 
                 def search_song(song_name):
