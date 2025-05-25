@@ -3,8 +3,20 @@ let performancesData = {};
 
 // --- 內嵌的歌單內容 ---
 // 請將您的 song_list.txt 檔案的完整內容，貼到下方三引號之間
-// 注意：如果您的歌單內容包含反斜線 (\) 或複雜的引號，可能需要進行轉義。
-// 但對於一般的純文字歌單，直接貼上通常是安全的。
+// 範例：
+// const EMBEDDED_SONG_LIST_CONTENT = `
+// 2023-01-01 現場表演 https://www.youtube.com/watch?v=dQw4w9WgXcQ
+// 00:05 歌曲A
+// 01:30 歌曲B
+// 02:45 歌曲C
+//
+// 2023-01-15 補錄 https://youtu.be/someotherid
+// 00:10 歌曲D
+// 01:00 歌曲A
+// # 這是註解
+// 03:00 歌曲E
+// `;
+// 請將上面的範例內容替換為您自己的實際歌單內容。
 const EMBEDDED_SONG_LIST_CONTENT = `
 第一次 https://youtu.be/y_nuffqSh3c
 0:00 心牆
@@ -511,7 +523,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:00:07 煎熬
 1:04:46 亞特蘭提斯 
 1:08:26 夢中的情話
-`; // <-- 這裡放置您的 song_list.txt 內容
+`; // <-- 請在這裡貼上您的 song_list.txt 內容！
 
 // --- 以下函式與之前相同，無須修改 ---
 
@@ -557,17 +569,20 @@ function parsePerformances(fileContent) {
     for (const line of lines) {
         const trimmedLine = line.trim();
 
-        if (trimmedLine.includes("https://youtu.be/?v=abcdefg")) { // 請注意這裡的 URL 格式，如果你的是youtube.com請把googleusercontent.com/youtube.com/2刪掉
-            const parts = trimmedLine.split(/\s+/);
+        // 判斷是否為包含有效 URL 的行 (以 http:// 或 https:// 開頭或包含)
+        if (trimmedLine.includes("http://") || trimmedLine.includes("https://")) {
+            const parts = trimmedLine.split(/\s+/); // 使用空白字符分割
             let sessionPart = parts[0]; 
-            if (trimmedLine.includes("補錄")) {
+            // 更精確判斷「補錄」是否在 session 名稱中
+            if (trimmedLine.includes("補錄") && parts.length > 1 && parts.some(part => part.includes("補錄"))) {
                 currentSession = sessionPart + " 補錄";
             } else {
                 currentSession = sessionPart;
             }
-            currentUrl = parts[parts.length - 1]; 
+            currentUrl = parts[parts.length - 1]; // 取最後一個作為 URL
             console.log(`parsePerformances: 偵測到新場次: ${currentSession}, URL: ${currentUrl}`);
         } 
+        // 檢查是否為歌曲時間戳記行 (非空且包含 ":" 且不以 "#" 開頭)
         else if (trimmedLine && trimmedLine.includes(":") && !trimmedLine.startsWith("#")) {
             try {
                 const firstSpaceIndex = trimmedLine.indexOf(' ');
@@ -603,8 +618,8 @@ function parsePerformances(fileContent) {
  */
 function searchSong(songName) {
     const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = '';
-    document.getElementById('loadingStatus').style.display = 'none';
+    resultsDiv.innerHTML = ''; // 清空之前的結果
+    document.getElementById('loadingStatus').style.display = 'none'; // 搜尋時隱藏載入狀態
 
     if (!performancesData || Object.keys(performancesData).length === 0) {
         resultsDiv.innerHTML = '<p class="status-message error">歌曲資料尚未載入，或載入的歌單為空。</p>';
@@ -619,6 +634,7 @@ function searchSong(songName) {
         foundPerformances.forEach(perf => {
             const li = document.createElement('li');
             const seconds = timeToSeconds(perf.timestamp);
+            // 構建 YouTube 連結
             const youtubeUrl = `${perf.url}?t=${seconds}`;
             li.innerHTML = `<strong>${perf.session}</strong><br><a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
             ul.appendChild(li);
@@ -645,17 +661,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (Object.keys(performancesData).length > 0) {
             loadingStatusDiv.textContent = '歌曲資料已載入，請輸入歌名搜尋。';
-            loadingStatusDiv.style.backgroundColor = '#d4edda';
-            loadingStatusDiv.style.color = '#155724';
+            loadingStatusDiv.style.backgroundColor = '#d4edda'; // 成功綠色背景
+            loadingStatusDiv.style.color = '#155724'; // 成功綠色文字
         } else {
             loadingStatusDiv.textContent = '歌曲資料已載入，但內嵌歌單未解析到任何歌曲。請檢查 EMBEDDED_SONG_LIST_CONTENT 內容。';
-            loadingStatusDiv.style.backgroundColor = '#fff3cd';
-            loadingStatusDiv.style.color = '#664d03';
+            loadingStatusDiv.style.backgroundColor = '#fff3cd'; // 警告黃色背景
+            loadingStatusDiv.style.color = '#664d03'; // 警告黃色文字
         }
     } catch (error) {
         loadingStatusDiv.textContent = `處理內嵌歌單失敗: ${error.message}`;
-        loadingStatusDiv.style.backgroundColor = '#f8d7da';
-        loadingStatusDiv.style.color = '#721c24';
+        loadingStatusDiv.style.backgroundColor = '#f8d7da'; // 錯誤紅色背景
+        loadingStatusDiv.style.color = '#721c24'; // 錯誤紅色文字
         console.error('解析內嵌歌單時發生錯誤:', error);
     } finally {
         setTimeout(() => {
