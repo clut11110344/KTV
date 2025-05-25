@@ -5,12 +5,12 @@ let performancesData = {};
 // 請將您的 song_list.txt 檔案的完整內容，貼到下方三引號之間
 // 範例：
 // const EMBEDDED_SONG_LIST_CONTENT = `
-// 2023-01-01 現場表演 https://www.youtube.com/watch?v=EXAMPLE1
+// 2023-01-01 現場表演 https://www.youtube.com/watch?v=dQw4w9WgXcQ
 // 00:05 歌曲A
 // 01:30 歌曲B
 // 02:45 歌曲C
 //
-// 2023-01-15 補錄 https://www.youtube.com/watch?v=EXAMPLE2
+// 2023-01-15 補錄 https://www.youtube.com/watch?v=qSDN_jV8f9E
 // 00:10 歌曲D
 // 01:00 歌曲A
 // # 這是註解
@@ -558,7 +558,13 @@ function showStatusMessage(element, message, type) {
         console.error("showStatusMessage: 錯誤：目標元素不存在！");
         return;
     }
-    element.textContent = message;
+    element.textContent = ''; // 先清空文本內容，再插入圖示和文字
+    if (type === 'loading') {
+        const spinner = document.createElement('i');
+        spinner.className = 'bi bi-arrow-clockwise loading-spinner';
+        element.appendChild(spinner);
+    }
+    element.appendChild(document.createTextNode(message)); // 再添加文字
     element.className = `status-message ${type}`; // 移除舊的 class，加上新的
     element.style.display = 'block';
     element.style.opacity = '1';
@@ -677,40 +683,6 @@ function parsePerformances(fileContent) {
     return performances;
 }
 
-/**
- * 處理複製連結到剪貼簿的功能。
- * @param {string} textToCopy - 要複製的文字。
- * @param {HTMLElement} buttonElement - 觸發複製的按鈕元素，用於顯示反饋。
- */
-async function copyLinkToClipboard(textToCopy, buttonElement) {
-    try {
-        await navigator.clipboard.writeText(textToCopy);
-        console.log("連結已複製:", textToCopy);
-        if (buttonElement) {
-            const originalText = buttonElement.textContent;
-            buttonElement.textContent = '已複製!';
-            buttonElement.classList.add('copied');
-            buttonElement.disabled = true; // 複製後禁用按鈕
-            setTimeout(() => {
-                buttonElement.textContent = originalText;
-                buttonElement.classList.remove('copied');
-                buttonElement.disabled = false; // 恢復按鈕
-            }, 1500); // 1.5秒後恢復
-        }
-    } catch (err) {
-        console.error('複製連結失敗:', err);
-        if (buttonElement) {
-            const originalText = buttonElement.textContent;
-            buttonElement.textContent = '複製失敗';
-            buttonElement.classList.add('error'); // 錯誤樣式
-            setTimeout(() => {
-                buttonElement.textContent = originalText;
-                buttonElement.classList.remove('error');
-            }, 1500);
-        }
-    }
-}
-
 
 /**
  * 根據歌名搜尋歌曲並顯示結果。
@@ -728,6 +700,9 @@ function searchSong(songName) {
         console.log("searchSong: 清空 resultsDiv 內容。");
     } else {
         console.error("錯誤：searchSong 函式中找不到 ID 為 'searchResults' 的元素！");
+        // 即使沒有 resultsDiv，也要恢復按鈕狀態
+        if (searchButton) { searchButton.innerHTML = '<i class="bi bi-search"></i> 搜尋'; searchButton.disabled = false; }
+        if (songNameInput) { songNameInput.disabled = false; }
         return; // 無法顯示結果，直接返回
     }
     
@@ -737,7 +712,7 @@ function searchSong(songName) {
 
     // 搜尋中狀態
     if (searchButton) {
-        searchButton.textContent = '搜尋中...';
+        searchButton.innerHTML = '<i class="bi bi-arrow-clockwise loading-spinner"></i> 搜尋中...';
         searchButton.disabled = true;
     }
     if (songNameInput) {
@@ -747,8 +722,11 @@ function searchSong(songName) {
     // 模擬網路延遲（可移除），讓使用者看到「搜尋中...」
     setTimeout(() => {
         if (!performancesData || Object.keys(performancesData).length === 0) {
-            resultsDiv.innerHTML = '<p class="status-message error">錯誤：歌曲資料尚未載入或載入的歌單為空。</p>';
+            resultsDiv.innerHTML = '<p class="status-message error"><i class="bi bi-exclamation-circle"></i> 錯誤：歌曲資料尚未載入或歌單為空。</p>';
             console.log("searchSong: 歌曲資料為空或未載入。");
+            // 恢復搜尋按鈕和輸入框狀態
+            if (searchButton) { searchButton.innerHTML = '<i class="bi bi-search"></i> 搜尋'; searchButton.disabled = false; }
+            if (songNameInput) { songNameInput.disabled = false; }
             return;
         }
 
@@ -764,27 +742,26 @@ function searchSong(songName) {
                 const seconds = timeToSeconds(perf.timestamp);
                 const youtubeUrl = `${perf.url}?t=${seconds}`;
 
-                li.innerHTML = `<strong>${perf.session}</strong><br><a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
-                
-                // 新增複製按鈕
-                const copyBtn = document.createElement('button');
-                copyBtn.textContent = '複製連結';
-                copyBtn.className = 'copy-button';
-                copyBtn.addEventListener('click', () => copyLinkToClipboard(youtubeUrl, copyBtn));
-                li.appendChild(copyBtn);
+                li.innerHTML = `
+                    <strong>${perf.session}</strong><br>
+                    <a href="${youtubeUrl}" target="_blank" class="watch-link">
+                        <i class="bi bi-youtube"></i> 點此觀看
+                    </a>
+                `;
+                // 原本的複製按鈕邏輯已移除
 
                 ul.appendChild(li);
             });
             resultsDiv.appendChild(ul);
             console.log("searchSong: ul 元素加入 resultsDiv。最終 resultsDiv.innerHTML:", resultsDiv.innerHTML);
         } else {
-            resultsDiv.innerHTML = `<p class="status-message info">找不到 '${songName}' 的演唱記錄。請確認歌名是否正確。</p>`;
+            resultsDiv.innerHTML = `<p class="status-message info"><i class="bi bi-info-circle"></i> 找不到 '${songName}' 的演唱記錄。請確認歌名是否正確。</p>`;
             console.log("searchSong: 顯示找不到歌曲的訊息。");
         }
 
         // 恢復搜尋按鈕和輸入框狀態
         if (searchButton) {
-            searchButton.textContent = '搜尋';
+            searchButton.innerHTML = '<i class="bi bi-search"></i> 搜尋';
             searchButton.disabled = false;
         }
         if (songNameInput) {
@@ -800,10 +777,12 @@ function searchSong(songName) {
 function clearSearch() {
     const songNameInput = document.getElementById('songNameInput');
     const resultsDiv = document.getElementById('searchResults');
-    const loadingStatusDiv = document.getElementById('loadingStatus');
+    const loadingStatusDiv = document.getElementById('loadingStatus'); // 確保獲取 loadingStatusDiv
+    const searchButton = document.getElementById('searchButton'); // 獲取搜尋按鈕
 
     if (songNameInput) {
         songNameInput.value = ''; // 清空輸入框
+        songNameInput.focus(); // 清空後聚焦輸入框
     }
     if (resultsDiv) {
         // 恢復到初始的提示訊息
@@ -813,8 +792,13 @@ function clearSearch() {
     if (loadingStatusDiv) {
         hideStatusMessage(loadingStatusDiv);
     }
+    // 恢復搜尋按鈕狀態，以防在搜尋中被點擊清除
+    if (searchButton) {
+        searchButton.innerHTML = '<i class="bi bi-search"></i> 搜尋';
+        searchButton.disabled = false;
+    }
     if (songNameInput) {
-        songNameInput.focus(); // 清空後聚焦輸入框
+        songNameInput.disabled = false;
     }
     console.log("搜尋框和結果已清除。");
 }
@@ -879,9 +863,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 searchSong(songName);
             } else {
                 if (resultsDiv) {
-                    resultsDiv.innerHTML = '<p class="status-message info">請輸入要搜尋的歌名。</p>';
+                    resultsDiv.innerHTML = '<p class="status-message info"><i class="bi bi-info-circle"></i> 請輸入要搜尋的歌名。</p>';
                     console.log("未輸入歌名，顯示提示訊息。");
                 }
+                // 如果沒有輸入歌名，也恢復按鈕狀態
+                if (searchButton) { searchButton.innerHTML = '<i class="bi bi-search"></i> 搜尋'; searchButton.disabled = false; }
+                if (songNameInput) { songNameInput.disabled = false; }
             }
         });
     } else {

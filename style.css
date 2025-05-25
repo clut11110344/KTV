@@ -156,6 +156,10 @@ button {
     transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
     box-shadow: 0 2px 5px var(--button-shadow-primary);
     white-space: nowrap;
+    display: flex; /* 讓圖示和文字水平排列 */
+    align-items: center; /* 垂直居中 */
+    gap: 8px; /* 圖示與文字間距 */
+    justify-content: center; /* 圖示和文字居中 */
 }
 
 button:hover {
@@ -217,6 +221,17 @@ button:disabled {
     padding: 0;
     margin: 0;
     overflow: hidden;
+}
+
+/* 載入圖示動畫 */
+.loading-spinner {
+    animation: spinner 1s linear infinite;
+    display: inline-block; /* 確保圖示佔據空間 */
+    margin-right: 5px; /* 圖示與文字間距 */
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
 }
 
 /* 搜尋結果 */
@@ -294,6 +309,9 @@ button:disabled {
     align-self: flex-end; /* 靠右對齊 */
     margin-top: 5px;
     white-space: nowrap;
+    display: flex; /* 讓圖示和文字水平排列 */
+    align-items: center; /* 垂直居中 */
+    gap: 5px; /* 圖示與文字間距 */
 }
 
 .copy-button:hover {
@@ -354,6 +372,11 @@ button:disabled {
     }
     .results-container h3 {
         font-size: 1.2em;
+    }
+    .results-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
     .results-container li {
         font-size: 0.9em;

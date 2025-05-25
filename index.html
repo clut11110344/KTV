@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube 歌曲搜尋器</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <link rel="stylesheet" href="style.css">
+
+    <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="container">
@@ -13,11 +18,13 @@
 
         <div class="search-controls">
             <input type="text" id="songNameInput" placeholder="請輸入歌名，例如：心牆" aria-label="歌曲名稱輸入框" autofocus>
-            <button id="searchButton">搜尋</button>
-            <button id="clearButton" class="secondary-button">清除</button>
+            <button id="searchButton"><i class="bi bi-search"></i> 搜尋</button>
+            <button id="clearButton" class="secondary-button"><i class="bi bi-x-circle"></i> 清除</button>
         </div>
 
-        <div id="loadingStatus" class="status-message loading">初始化中...</div>
+        <div id="loadingStatus" class="status-message loading">
+            <i class="bi bi-arrow-clockwise loading-spinner"></i> 初始化中...
+        </div>
         
         <div id="searchResults" class="results-container">
             <p class="initial-info">請輸入歌名進行搜尋。</p>
