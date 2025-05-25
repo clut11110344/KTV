@@ -10,13 +10,12 @@ let performancesData = {};
 // 01:30 歌曲B
 // 02:45 歌曲C
 //
-// 2023-01-15 補錄 https://youtu.be/someotherid
+// 2023-01-15 補錄 https://youtu.be/another_video_id
 // 00:10 歌曲D
 // 01:00 歌曲A
 // # 這是註解
 // 03:00 歌曲E
 // `;
-// 請將上面的範例內容替換為您自己的實際歌單內容。
 const EMBEDDED_SONG_LIST_CONTENT = `
 第一次 https://youtu.be/y_nuffqSh3c
 0:00 心牆
@@ -523,9 +522,9 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:00:07 煎熬
 1:04:46 亞特蘭提斯 
 1:08:26 夢中的情話
-`; // <-- 請在這裡貼上您的 song_list.txt 內容！
+`; // <-- 請在這裡貼上您的 song_list.txt 內容！並確保 YouTube 連結是真實有效的！
 
-// --- 以下函式與之前相同，無須修改 ---
+// --- 以下是輔助函式 ---
 
 /**
  * 將時間字串轉換為秒數。
@@ -547,14 +546,14 @@ function timeToSeconds(timeStr) {
 }
 
 /**
- * 解析 song_list.txt 的內容，建立歌曲表演資料物件。
- * @param {string} fileContent - song_list.txt 的完整內容。
+ * 解析內嵌歌單內容，建立歌曲表演資料物件。
+ * @param {string} fileContent - 歌單的完整文字內容。
  * @returns {Object} - 解析後的歌曲表演資料。
  */
 function parsePerformances(fileContent) {
     console.log("parsePerformances: 開始解析檔案內容...");
     if (typeof fileContent !== 'string') {
-        console.error("parsePerformances: 檔案內容不是字串類型！", fileContent);
+        console.error("parsePerformances: 錯誤：檔案內容不是字串類型！", fileContent);
         return {};
     }
     console.log("parsePerformances: 檔案內容長度:", fileContent.length);
@@ -603,7 +602,7 @@ function parsePerformances(fileContent) {
                     timestamp: timestamp
                 });
             } catch (e) {
-                console.error("parsePerformances: 解析歌曲行時發生錯誤:", e, "行內容:", trimmedLine);
+                console.error("parsePerformances: 解析歌曲行時發生錯誤:", e, "行內容:", trimmedLine, "錯誤:", e);
                 continue;
             }
         }
@@ -618,81 +617,132 @@ function parsePerformances(fileContent) {
  */
 function searchSong(songName) {
     const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = ''; // 清空之前的結果
-    document.getElementById('loadingStatus').style.display = 'none'; // 搜尋時隱藏載入狀態
+    // 確認元素是否存在，並清空內容
+    if (resultsDiv) {
+        console.log("searchSong: 獲取到的 resultsDiv 元素:", resultsDiv);
+        resultsDiv.innerHTML = '';
+        console.log("searchSong: 清空 resultsDiv 內容。");
+    } else {
+        console.error("錯誤：searchSong 函式中找不到 ID 為 'searchResults' 的元素！");
+        return; // 無法顯示結果，直接返回
+    }
+    
+    // 搜尋時，隱藏載入狀態訊息，如果它還存在的話
+    const loadingStatusDiv = document.getElementById('loadingStatus');
+    if (loadingStatusDiv) {
+        loadingStatusDiv.style.display = 'none';
+    }
 
     if (!performancesData || Object.keys(performancesData).length === 0) {
-        resultsDiv.innerHTML = '<p class="status-message error">歌曲資料尚未載入，或載入的歌單為空。</p>';
+        resultsDiv.innerHTML = '<p class="status-message error">錯誤：歌曲資料尚未載入或載入的歌單為空。</p>';
+        console.log("searchSong: 歌曲資料為空或未載入。");
         return;
     }
 
     const foundPerformances = performancesData[songName];
+    console.log(`searchSong: 搜尋 '${songName}'，找到結果:`, foundPerformances);
 
     if (foundPerformances && foundPerformances.length > 0) {
         const ul = document.createElement('ul');
-        resultsDiv.innerHTML = `<h3>找到 '${songName}' 的演唱記錄：</h3>`;
+        resultsDiv.innerHTML = `<h3>找到 '${songName}' 的演唱記錄：</h3>`; // 替換 innerHTML
+        console.log("searchSong: resultsDiv.innerHTML 更新為 H3 標籤。");
+
         foundPerformances.forEach(perf => {
             const li = document.createElement('li');
             const seconds = timeToSeconds(perf.timestamp);
-            // 構建 YouTube 連結
             const youtubeUrl = `${perf.url}?t=${seconds}`;
             li.innerHTML = `<strong>${perf.session}</strong><br><a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
-            ul.appendChild(li);
+            ul.appendChild(li); // 將 li 加入 ul
+            // console.log("searchSong: li 元素加入 ul。"); // 如果歌曲很多，會輸出很多行，可暫時註解
         });
-        resultsDiv.appendChild(ul);
+        resultsDiv.appendChild(ul); // 將 ul 加入 resultsDiv
+        console.log("searchSong: ul 元素加入 resultsDiv。最終 resultsDiv.innerHTML:", resultsDiv.innerHTML); // 輸出最終的 HTML 內容
     } else {
         resultsDiv.innerHTML = `<p class="status-message info">找不到 '${songName}' 的演唱記錄。</p>`;
+        console.log("searchSong: 顯示找不到歌曲的訊息。");
     }
 }
 
-// 頁面載入時直接使用內嵌歌單內容
+// --- 頁面載入時的初始化邏輯 ---
 document.addEventListener('DOMContentLoaded', () => {
+    // 獲取 DOM 元素，確保它們存在
     const searchButton = document.getElementById('searchButton');
     const songNameInput = document.getElementById('songNameInput');
     const resultsDiv = document.getElementById('searchResults');
     const loadingStatusDiv = document.getElementById('loadingStatus');
 
-    loadingStatusDiv.style.display = 'block';
-    loadingStatusDiv.textContent = '初始化歌曲資料中...';
+    // **偵錯訊息：確認元素是否被正確獲取**
+    console.log("DOMContentLoaded 已觸發！");
+    console.log("searchButton 元素:", searchButton);
+    console.log("songNameInput 元素:", songNameInput);
+    console.log("loadingStatusDiv 元素:", loadingStatusDiv);
+    console.log("searchResults 元素:", resultsDiv);
+
+
+    // 處理載入狀態訊息顯示
+    if (loadingStatusDiv) {
+        loadingStatusDiv.style.display = 'block';
+        loadingStatusDiv.textContent = '初始化歌曲資料中...';
+    } else {
+        console.error("錯誤：找不到 ID 為 'loadingStatus' 的元素，無法顯示載入狀態！請檢查 index.html。");
+    }
 
     try {
         performancesData = parsePerformances(EMBEDDED_SONG_LIST_CONTENT);
         console.log("直接解析內嵌歌單完成。performancesData:", performancesData);
         
-        if (Object.keys(performancesData).length > 0) {
-            loadingStatusDiv.textContent = '歌曲資料已載入，請輸入歌名搜尋。';
-            loadingStatusDiv.style.backgroundColor = '#d4edda'; // 成功綠色背景
-            loadingStatusDiv.style.color = '#155724'; // 成功綠色文字
-        } else {
-            loadingStatusDiv.textContent = '歌曲資料已載入，但內嵌歌單未解析到任何歌曲。請檢查 EMBEDDED_SONG_LIST_CONTENT 內容。';
-            loadingStatusDiv.style.backgroundColor = '#fff3cd'; // 警告黃色背景
-            loadingStatusDiv.style.color = '#664d03'; // 警告黃色文字
+        if (loadingStatusDiv) {
+            if (Object.keys(performancesData).length > 0) {
+                loadingStatusDiv.textContent = '歌曲資料已載入，請輸入歌名搜尋。';
+                loadingStatusDiv.style.backgroundColor = '#d4edda'; // 成功綠色背景
+                loadingStatusDiv.style.color = '#155724'; // 成功綠色文字
+            } else {
+                loadingStatusDiv.textContent = '歌曲資料已載入，但內嵌歌單未解析到任何歌曲。請檢查 EMBEDDED_SONG_LIST_CONTENT 內容。';
+                loadingStatusDiv.style.backgroundColor = '#fff3cd'; // 警告黃色背景
+                loadingStatusDiv.style.color = '#664d03'; // 警告黃色文字
+            }
         }
     } catch (error) {
-        loadingStatusDiv.textContent = `處理內嵌歌單失敗: ${error.message}`;
-        loadingStatusDiv.style.backgroundColor = '#f8d7da'; // 錯誤紅色背景
-        loadingStatusDiv.style.color = '#721c24'; // 錯誤紅色文字
+        if (loadingStatusDiv) {
+            loadingStatusDiv.textContent = `處理內嵌歌單失敗: ${error.message}`;
+            loadingStatusDiv.style.backgroundColor = '#f8d7da'; // 錯誤紅色背景
+            loadingStatusDiv.style.color = '#721c24'; // 錯誤紅色文字
+        }
         console.error('解析內嵌歌單時發生錯誤:', error);
     } finally {
-        setTimeout(() => {
-            loadingStatusDiv.style.display = 'none';
-        }, 5000); // 5 秒後自動隱藏訊息
+        // 設定定時器，在 5 秒後隱藏載入狀態訊息
+        if (loadingStatusDiv) {
+            setTimeout(() => {
+                loadingStatusDiv.style.display = 'none';
+            }, 5000); 
+        }
     }
 
     // 處理搜尋按鈕點擊
-    searchButton.addEventListener('click', () => {
-        const songName = songNameInput.value.trim();
-        if (songName) {
-            searchSong(songName);
-        } else {
-            resultsDiv.innerHTML = '<p class="status-message info">請輸入要搜尋的歌名。</p>';
-        }
-    });
+    if (searchButton && songNameInput && resultsDiv) { // 確保所有相關元素都存在才綁定事件
+        searchButton.addEventListener('click', () => {
+            console.log("搜尋按鈕被點擊！"); // 確認按鈕點擊事件有被捕捉到
+            const songName = songNameInput.value.trim();
+            if (songName) {
+                searchSong(songName);
+            } else {
+                resultsDiv.innerHTML = '<p class="status-message info">請輸入要搜尋的歌名。</p>';
+                console.log("未輸入歌名，顯示提示訊息。");
+            }
+        });
+    } else {
+        console.error("錯誤：無法綁定搜尋事件！檢查 ID 為 'searchButton' 或 'songNameInput' 或 'searchResults' 的元素是否存在。");
+    }
 
     // 允許按 Enter 鍵搜尋
-    songNameInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            searchButton.click();
-        }
-    });
+    if (songNameInput && searchButton) { // 確保輸入框和按鈕都存在才綁定事件
+        songNameInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                console.log("輸入框按下 Enter 鍵！"); // 確認 Enter 鍵事件有被捕捉到
+                searchButton.click(); // 模擬點擊搜尋按鈕
+            }
+        });
+    } else {
+        console.error("錯誤：無法綁定 Enter 鍵事件！檢查 ID 為 'songNameInput' 或 'searchButton' 的元素是否存在。");
+    }
 });
