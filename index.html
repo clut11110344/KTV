@@ -33,39 +33,57 @@
                     except FileNotFoundError:
                         print("找不到 song_list.txt 檔案")
                         return {}
+                    except Exception as e:
+                        print(f"讀取檔案時發生錯誤：{str(e)}")
+                        return {}
                     
                     for line in lines:
-                        line = line.strip()
-                        if "https://youtu.be/" in line:
-                            if "補錄" in line:
-                                current_session = line.split()[0] + " 補錄"
-                            else:
-                                current_session = line.split()[0]
-                            current_url = line.split()[-1]
-                        elif line and ":" in line and not line.startswith("#"):
-                            try:
-                                timestamp, song = line.split(" ", 1)
-                                if song not in performances:
-                                    performances[song] = []
-                                performances[song].append({
-                                    "session": current_session,
-                                    "url": current_url,
-                                    "timestamp": timestamp
-                                })
-                            except:
+                        try:
+                            line = line.strip()
+                            if not line:  # 跳過空行
                                 continue
+                                
+                            if "https://youtu.be/" in line:
+                                parts = line.split()
+                                if len(parts) >= 2:
+                                    if "補錄" in line:
+                                        current_session = parts[0] + " 補錄"
+                                    else:
+                                        current_session = parts[0]
+                                    current_url = parts[-1]
+                            elif ":" in line and not line.startswith("#"):
+                                parts = line.split(" ", 1)
+                                if len(parts) == 2:
+                                    timestamp, song = parts
+                                    if song not in performances:
+                                        performances[song] = []
+                                    performances[song].append({
+                                        "session": current_session,
+                                        "url": current_url,
+                                        "timestamp": timestamp
+                                    })
+                        except Exception as e:
+                            print(f"處理行時發生錯誤：{str(e)}")
+                            continue
                     
                     return performances
 
                 def search_song(song_name):
-                    performances = parse_performances()
-                    
-                    if song_name in performances:
-                        print(f"\\n找到 '{song_name}' 的演唱記錄：")
-                        for perf in performances[song_name]:
-                            print(f"{perf['session']} - {perf['url']}?t={time_to_seconds(perf['timestamp'])}")
-                    else:
-                        print(f"\\n找不到 '{song_name}' 的演唱記錄")
+                    try:
+                        performances = parse_performances()
+                        
+                        if not performances:
+                            print("無法讀取歌曲資料")
+                            return
+                            
+                        if song_name in performances:
+                            print(f"\\n找到 '{song_name}' 的演唱記錄：")
+                            for perf in performances[song_name]:
+                                print(f"{perf['session']} - {perf['url']}?t={time_to_seconds(perf['timestamp'])}")
+                        else:
+                            print(f"\\n找不到 '{song_name}' 的演唱記錄")
+                    except Exception as e:
+                        print(f"搜尋時發生錯誤：{str(e)}")
 
                 def time_to_seconds(time_str):
                     if ':' not in time_str:
@@ -82,13 +100,21 @@
         }
 
         function searchSong() {
-            const songName = document.getElementById('songInput').value;
+            const songName = document.getElementById('songInput').value.trim();
             const output = document.getElementById('output');
             output.innerHTML = '';
+            
+            if (!songName) {
+                output.innerHTML = '請輸入要搜尋的歌名';
+                return;
+            }
+            
             window.pyodide.runPythonAsync(`
-                search_song("${songName}")
+                search_song("${songName.replace(/"/g, '\\"')}")
             `).then(result => {
                 output.innerHTML = result;
+            }).catch(error => {
+                output.innerHTML = '搜尋時發生錯誤：' + error.message;
             });
         }
 
