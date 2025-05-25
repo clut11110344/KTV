@@ -5,17 +5,18 @@ let performancesData = {};
 // 請將您的 song_list.txt 檔案的完整內容，貼到下方三引號之間
 // 範例：
 // const EMBEDDED_SONG_LIST_CONTENT = `
-// 2023-01-01 現場表演 https://www.youtube.com/watch?v=dQw4w9WgXcQ
+// 2023-01-01 現場表演 https://www.youtube.com/watch?v=EXAMPLE1
 // 00:05 歌曲A
 // 01:30 歌曲B
 // 02:45 歌曲C
 //
-// 2023-01-15 補錄 https://youtu.be/another_video_id
+// 2023-01-15 補錄 https://www.youtube.com/watch?v=EXAMPLE2
 // 00:10 歌曲D
 // 01:00 歌曲A
 // # 這是註解
 // 03:00 歌曲E
 // `;
+// 請確保您的 YouTube 連結是真實有效的！
 const EMBEDDED_SONG_LIST_CONTENT = `
 第一次 https://youtu.be/y_nuffqSh3c
 0:00 心牆
@@ -522,9 +523,10 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:00:07 煎熬
 1:04:46 亞特蘭提斯 
 1:08:26 夢中的情話
-`; // <-- 請在這裡貼上您的 song_list.txt 內容！並確保 YouTube 連結是真實有效的！
+`; // <-- 請在這裡貼上您的 song_list.txt 內容！
 
-// --- 以下是輔助函式 ---
+
+// --- 輔助函式 ---
 
 /**
  * 將時間字串轉換為秒數。
@@ -544,6 +546,50 @@ function timeToSeconds(timeStr) {
     }
     return 0;
 }
+
+/**
+ * 顯示狀態訊息並設定樣式
+ * @param {HTMLElement} element - 狀態訊息的 DOM 元素
+ * @param {string} message - 要顯示的訊息
+ * @param {string} type - 訊息類型 ('loading', 'success', 'warning', 'error')
+ */
+function showStatusMessage(element, message, type) {
+    if (!element) {
+        console.error("showStatusMessage: 錯誤：目標元素不存在！");
+        return;
+    }
+    element.textContent = message;
+    element.className = `status-message ${type}`; // 移除舊的 class，加上新的
+    element.style.display = 'block';
+    element.style.opacity = '1';
+    element.style.height = 'auto'; // 確保高度自適應
+    element.style.padding = '12px';
+    element.style.margin = '0 0 20px 0';
+    element.style.overflow = 'visible';
+    console.log(`Status Message: ${message} (Type: ${type})`);
+}
+
+/**
+ * 隱藏狀態訊息
+ * @param {HTMLElement} element - 狀態訊息的 DOM 元素
+ */
+function hideStatusMessage(element) {
+    if (!element) return;
+    element.style.opacity = '0';
+    element.style.height = '0';
+    element.style.padding = '0';
+    element.style.margin = '0';
+    element.style.overflow = 'hidden';
+    // 在過渡結束後完全隱藏
+    element.addEventListener('transitionend', function handler() {
+        if (element.style.opacity === '0') {
+            element.style.display = 'none';
+            element.removeEventListener('transitionend', handler); // 移除事件監聽器，避免重複觸發
+        }
+    }, { once: true });
+    console.log("Status Message: 已設定為隱藏。");
+}
+
 
 /**
  * 解析內嵌歌單內容，建立歌曲表演資料物件。
@@ -569,16 +615,30 @@ function parsePerformances(fileContent) {
         const trimmedLine = line.trim();
 
         // 判斷是否為包含有效 URL 的行 (以 http:// 或 https:// 開頭或包含)
-        if (trimmedLine.includes("http://") || trimmedLine.includes("https://")) {
+        if (trimmedLine.startsWith("http://") || trimmedLine.startsWith("https://") || 
+            trimmedLine.includes("http://") || trimmedLine.includes("https://")) {
+            
+            // 從包含 URL 的行中提取 Session 名稱和 URL
             const parts = trimmedLine.split(/\s+/); // 使用空白字符分割
-            let sessionPart = parts[0]; 
-            // 更精確判斷「補錄」是否在 session 名稱中
-            if (trimmedLine.includes("補錄") && parts.length > 1 && parts.some(part => part.includes("補錄"))) {
-                currentSession = sessionPart + " 補錄";
-            } else {
-                currentSession = sessionPart;
+
+            // 確保 parts 至少包含一個 session 名稱和一個 URL
+            if (parts.length < 2) {
+                console.warn("parsePerformances: 忽略無效的 URL 行 (格式不正確):", trimmedLine);
+                continue;
             }
-            currentUrl = parts[parts.length - 1]; // 取最後一個作為 URL
+
+            // session 名稱可能是第一個詞，或者包含多個詞
+            // 我們假設 URL 是最後一個部分
+            currentUrl = parts[parts.length - 1]; 
+            const sessionParts = parts.slice(0, parts.length - 1);
+            currentSession = sessionParts.join(' '); // 重新組合 session 名稱
+
+            // 特殊處理「補錄」字樣，確保其在 session 名稱中
+            if (currentSession.includes("補錄") && !sessionParts.some(part => part === "補錄")) {
+                 // 如果原始行包含補錄，但組合後的 session 不包含，可能表示「補錄」是獨立的詞
+                 // 但我們之前的邏輯假設它是 session 名稱的一部分，所以這裡讓它保持一致
+            }
+
             console.log(`parsePerformances: 偵測到新場次: ${currentSession}, URL: ${currentUrl}`);
         } 
         // 檢查是否為歌曲時間戳記行 (非空且包含 ":" 且不以 "#" 開頭)
@@ -592,6 +652,12 @@ function parsePerformances(fileContent) {
 
                 const timestamp = trimmedLine.substring(0, firstSpaceIndex);
                 const song = trimmedLine.substring(firstSpaceIndex + 1);
+
+                // 檢查是否已經有 currentSession 和 currentUrl，否則這條歌曲無法歸類
+                if (!currentSession || !currentUrl) {
+                    console.warn(`parsePerformances: 忽略歌曲 '${song}'，因為沒有找到相關的場次和 URL。行內容: ${trimmedLine}`);
+                    continue;
+                }
 
                 if (!performances[song]) {
                     performances[song] = [];
@@ -612,12 +678,50 @@ function parsePerformances(fileContent) {
 }
 
 /**
+ * 處理複製連結到剪貼簿的功能。
+ * @param {string} textToCopy - 要複製的文字。
+ * @param {HTMLElement} buttonElement - 觸發複製的按鈕元素，用於顯示反饋。
+ */
+async function copyLinkToClipboard(textToCopy, buttonElement) {
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        console.log("連結已複製:", textToCopy);
+        if (buttonElement) {
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = '已複製!';
+            buttonElement.classList.add('copied');
+            buttonElement.disabled = true; // 複製後禁用按鈕
+            setTimeout(() => {
+                buttonElement.textContent = originalText;
+                buttonElement.classList.remove('copied');
+                buttonElement.disabled = false; // 恢復按鈕
+            }, 1500); // 1.5秒後恢復
+        }
+    } catch (err) {
+        console.error('複製連結失敗:', err);
+        if (buttonElement) {
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = '複製失敗';
+            buttonElement.classList.add('error'); // 錯誤樣式
+            setTimeout(() => {
+                buttonElement.textContent = originalText;
+                buttonElement.classList.remove('error');
+            }, 1500);
+        }
+    }
+}
+
+
+/**
  * 根據歌名搜尋歌曲並顯示結果。
  * @param {string} songName - 要搜尋的歌名。
  */
 function searchSong(songName) {
     const resultsDiv = document.getElementById('searchResults');
-    // 確認元素是否存在，並清空內容
+    const searchButton = document.getElementById('searchButton');
+    const songNameInput = document.getElementById('songNameInput');
+
+    // 清空結果區塊
     if (resultsDiv) {
         console.log("searchSong: 獲取到的 resultsDiv 元素:", resultsDiv);
         resultsDiv.innerHTML = '';
@@ -627,46 +731,100 @@ function searchSong(songName) {
         return; // 無法顯示結果，直接返回
     }
     
-    // 搜尋時，隱藏載入狀態訊息，如果它還存在的話
+    // 隱藏載入狀態訊息
     const loadingStatusDiv = document.getElementById('loadingStatus');
-    if (loadingStatusDiv) {
-        loadingStatusDiv.style.display = 'none';
+    hideStatusMessage(loadingStatusDiv);
+
+    // 搜尋中狀態
+    if (searchButton) {
+        searchButton.textContent = '搜尋中...';
+        searchButton.disabled = true;
+    }
+    if (songNameInput) {
+        songNameInput.disabled = true;
     }
 
-    if (!performancesData || Object.keys(performancesData).length === 0) {
-        resultsDiv.innerHTML = '<p class="status-message error">錯誤：歌曲資料尚未載入或載入的歌單為空。</p>';
-        console.log("searchSong: 歌曲資料為空或未載入。");
-        return;
-    }
+    // 模擬網路延遲（可移除），讓使用者看到「搜尋中...」
+    setTimeout(() => {
+        if (!performancesData || Object.keys(performancesData).length === 0) {
+            resultsDiv.innerHTML = '<p class="status-message error">錯誤：歌曲資料尚未載入或載入的歌單為空。</p>';
+            console.log("searchSong: 歌曲資料為空或未載入。");
+            return;
+        }
 
-    const foundPerformances = performancesData[songName];
-    console.log(`searchSong: 搜尋 '${songName}'，找到結果:`, foundPerformances);
+        const foundPerformances = performancesData[songName];
+        console.log(`searchSong: 搜尋 '${songName}'，找到結果:`, foundPerformances);
 
-    if (foundPerformances && foundPerformances.length > 0) {
-        const ul = document.createElement('ul');
-        resultsDiv.innerHTML = `<h3>找到 '${songName}' 的演唱記錄：</h3>`; // 替換 innerHTML
-        console.log("searchSong: resultsDiv.innerHTML 更新為 H3 標籤。");
+        if (foundPerformances && foundPerformances.length > 0) {
+            const ul = document.createElement('ul');
+            resultsDiv.innerHTML = `<h3>找到 '${songName}' 的演唱記錄：</h3>`;
 
-        foundPerformances.forEach(perf => {
-            const li = document.createElement('li');
-            const seconds = timeToSeconds(perf.timestamp);
-            const youtubeUrl = `${perf.url}?t=${seconds}`;
-            li.innerHTML = `<strong>${perf.session}</strong><br><a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
-            ul.appendChild(li); // 將 li 加入 ul
-            // console.log("searchSong: li 元素加入 ul。"); // 如果歌曲很多，會輸出很多行，可暫時註解
-        });
-        resultsDiv.appendChild(ul); // 將 ul 加入 resultsDiv
-        console.log("searchSong: ul 元素加入 resultsDiv。最終 resultsDiv.innerHTML:", resultsDiv.innerHTML); // 輸出最終的 HTML 內容
-    } else {
-        resultsDiv.innerHTML = `<p class="status-message info">找不到 '${songName}' 的演唱記錄。</p>`;
-        console.log("searchSong: 顯示找不到歌曲的訊息。");
-    }
+            foundPerformances.forEach(perf => {
+                const li = document.createElement('li');
+                const seconds = timeToSeconds(perf.timestamp);
+                const youtubeUrl = `${perf.url}?t=${seconds}`;
+
+                li.innerHTML = `<strong>${perf.session}</strong><br><a href="${youtubeUrl}" target="_blank">${youtubeUrl}</a>`;
+                
+                // 新增複製按鈕
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '複製連結';
+                copyBtn.className = 'copy-button';
+                copyBtn.addEventListener('click', () => copyLinkToClipboard(youtubeUrl, copyBtn));
+                li.appendChild(copyBtn);
+
+                ul.appendChild(li);
+            });
+            resultsDiv.appendChild(ul);
+            console.log("searchSong: ul 元素加入 resultsDiv。最終 resultsDiv.innerHTML:", resultsDiv.innerHTML);
+        } else {
+            resultsDiv.innerHTML = `<p class="status-message info">找不到 '${songName}' 的演唱記錄。請確認歌名是否正確。</p>`;
+            console.log("searchSong: 顯示找不到歌曲的訊息。");
+        }
+
+        // 恢復搜尋按鈕和輸入框狀態
+        if (searchButton) {
+            searchButton.textContent = '搜尋';
+            searchButton.disabled = false;
+        }
+        if (songNameInput) {
+            songNameInput.disabled = false;
+        }
+        songNameInput.focus(); // 搜尋後將焦點放回輸入框
+    }, 300); // 模擬搜尋延遲，讓使用者看到「搜尋中...」
 }
+
+/**
+ * 清空搜尋框和結果區塊。
+ */
+function clearSearch() {
+    const songNameInput = document.getElementById('songNameInput');
+    const resultsDiv = document.getElementById('searchResults');
+    const loadingStatusDiv = document.getElementById('loadingStatus');
+
+    if (songNameInput) {
+        songNameInput.value = ''; // 清空輸入框
+    }
+    if (resultsDiv) {
+        // 恢復到初始的提示訊息
+        resultsDiv.innerHTML = '<p class="initial-info">請輸入歌名進行搜尋。</p>';
+    }
+    // 隱藏載入/狀態訊息，或者讓它在下次操作時出現
+    if (loadingStatusDiv) {
+        hideStatusMessage(loadingStatusDiv);
+    }
+    if (songNameInput) {
+        songNameInput.focus(); // 清空後聚焦輸入框
+    }
+    console.log("搜尋框和結果已清除。");
+}
+
 
 // --- 頁面載入時的初始化邏輯 ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 獲取 DOM 元素，確保它們存在
+    // 獲取 DOM 元素，並進行空值檢查
     const searchButton = document.getElementById('searchButton');
+    const clearButton = document.getElementById('clearButton');
     const songNameInput = document.getElementById('songNameInput');
     const resultsDiv = document.getElementById('searchResults');
     const loadingStatusDiv = document.getElementById('loadingStatus');
@@ -674,6 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // **偵錯訊息：確認元素是否被正確獲取**
     console.log("DOMContentLoaded 已觸發！");
     console.log("searchButton 元素:", searchButton);
+    console.log("clearButton 元素:", clearButton);
     console.log("songNameInput 元素:", songNameInput);
     console.log("loadingStatusDiv 元素:", loadingStatusDiv);
     console.log("searchResults 元素:", resultsDiv);
@@ -681,8 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 處理載入狀態訊息顯示
     if (loadingStatusDiv) {
-        loadingStatusDiv.style.display = 'block';
-        loadingStatusDiv.textContent = '初始化歌曲資料中...';
+        showStatusMessage(loadingStatusDiv, '初始化歌曲資料中...', 'loading');
     } else {
         console.error("錯誤：找不到 ID 為 'loadingStatus' 的元素，無法顯示載入狀態！請檢查 index.html。");
     }
@@ -693,27 +851,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (loadingStatusDiv) {
             if (Object.keys(performancesData).length > 0) {
-                loadingStatusDiv.textContent = '歌曲資料已載入，請輸入歌名搜尋。';
-                loadingStatusDiv.style.backgroundColor = '#d4edda'; // 成功綠色背景
-                loadingStatusDiv.style.color = '#155724'; // 成功綠色文字
+                showStatusMessage(loadingStatusDiv, '歌曲資料已載入，請輸入歌名搜尋。', 'success');
             } else {
-                loadingStatusDiv.textContent = '歌曲資料已載入，但內嵌歌單未解析到任何歌曲。請檢查 EMBEDDED_SONG_LIST_CONTENT 內容。';
-                loadingStatusDiv.style.backgroundColor = '#fff3cd'; // 警告黃色背景
-                loadingStatusDiv.style.color = '#664d03'; // 警告黃色文字
+                showStatusMessage(loadingStatusDiv, '歌曲資料已載入，但內嵌歌單未解析到任何歌曲。請檢查 EMBEDDED_SONG_LIST_CONTENT 內容。', 'warning');
             }
         }
     } catch (error) {
         if (loadingStatusDiv) {
-            loadingStatusDiv.textContent = `處理內嵌歌單失敗: ${error.message}`;
-            loadingStatusDiv.style.backgroundColor = '#f8d7da'; // 錯誤紅色背景
-            loadingStatusDiv.style.color = '#721c24'; // 錯誤紅色文字
+            showStatusMessage(loadingStatusDiv, `處理內嵌歌單失敗: ${error.message}`, 'error');
         }
         console.error('解析內嵌歌單時發生錯誤:', error);
     } finally {
         // 設定定時器，在 5 秒後隱藏載入狀態訊息
         if (loadingStatusDiv) {
             setTimeout(() => {
-                loadingStatusDiv.style.display = 'none';
+                hideStatusMessage(loadingStatusDiv);
             }, 5000); 
         }
     }
@@ -721,28 +873,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // 處理搜尋按鈕點擊
     if (searchButton && songNameInput && resultsDiv) { // 確保所有相關元素都存在才綁定事件
         searchButton.addEventListener('click', () => {
-            console.log("搜尋按鈕被點擊！"); // 確認按鈕點擊事件有被捕捉到
+            console.log("搜尋按鈕被點擊！");
             const songName = songNameInput.value.trim();
             if (songName) {
                 searchSong(songName);
             } else {
-                resultsDiv.innerHTML = '<p class="status-message info">請輸入要搜尋的歌名。</p>';
-                console.log("未輸入歌名，顯示提示訊息。");
+                if (resultsDiv) {
+                    resultsDiv.innerHTML = '<p class="status-message info">請輸入要搜尋的歌名。</p>';
+                    console.log("未輸入歌名，顯示提示訊息。");
+                }
             }
         });
     } else {
         console.error("錯誤：無法綁定搜尋事件！檢查 ID 為 'searchButton' 或 'songNameInput' 或 'searchResults' 的元素是否存在。");
     }
 
+    // 處理清空按鈕點擊
+    if (clearButton) {
+        clearButton.addEventListener('click', clearSearch);
+        console.log("清空按鈕事件已綁定。");
+    } else {
+        console.error("錯誤：找不到 ID 為 'clearButton' 的元素，無法綁定清空事件！請檢查 index.html。");
+    }
+
     // 允許按 Enter 鍵搜尋
-    if (songNameInput && searchButton) { // 確保輸入框和按鈕都存在才綁定事件
+    if (songNameInput && searchButton) {
         songNameInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
-                console.log("輸入框按下 Enter 鍵！"); // 確認 Enter 鍵事件有被捕捉到
+                console.log("輸入框按下 Enter 鍵！");
                 searchButton.click(); // 模擬點擊搜尋按鈕
             }
         });
     } else {
         console.error("錯誤：無法綁定 Enter 鍵事件！檢查 ID 為 'songNameInput' 或 'searchButton' 的元素是否存在。");
+    }
+
+    // 頁面載入後自動聚焦到搜尋輸入框 (HTML autofocus 屬性通常更優先)
+    if (songNameInput) {
+        songNameInput.focus();
     }
 });
