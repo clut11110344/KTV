@@ -1,0 +1,154 @@
+/* style.css */
+
+/* 通用樣式 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 從頂部開始排列 */
+    min-height: 100vh; /* 至少佔滿視窗高度 */
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box; /* 包含 padding 和 border 在寬度內 */
+}
+
+/* 標題 */
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+/* 搜尋區塊 */
+.search-section {
+    display: flex;
+    gap: 10px; /* 輸入框和按鈕之間的間距 */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* 小螢幕時自動換行 */
+}
+
+input[type="text"] {
+    flex-grow: 1; /* 讓輸入框佔滿剩餘空間 */
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    outline: none; /* 移除點擊時的藍色邊框 */
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #007bff;
+}
+
+button {
+    padding: 12px 25px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:active {
+    transform: translateY(1px); /* 點擊時輕微下沉效果 */
+}
+
+/* 狀態訊息 */
+.status-message {
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: #e2f0fb; /* 淺藍色背景 */
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* 搜尋結果 */
+.results-container {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 100px; /* 至少保留一些高度 */
+    overflow-y: auto; /* 超過內容時顯示滾動條 */
+    max-height: 400px; /* 最大高度 */
+}
+
+.results-container h3 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.results-container ul {
+    list-style: none; /* 移除列表符號 */
+    padding: 0;
+    margin: 0;
+}
+
+.results-container li {
+    padding: 10px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.95em;
+    display: flex;
+    flex-direction: column; /* 讓文字和連結換行 */
+    word-break: break-all; /* 防止長連結溢出 */
+}
+
+.results-container li:last-child {
+    border-bottom: none; /* 最後一項沒有底線 */
+}
+
+.results-container li a {
+    color: #007bff;
+    text-decoration: none;
+    word-break: break-all; /* 讓連結在必要時自動換行 */
+    margin-top: 5px; /* 與上一行文字間距 */
+}
+
+.results-container li a:hover {
+    text-decoration: underline;
+}
+
+/* 手機響應式調整 */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    .search-section {
+        flex-direction: column; /* 輸入框和按鈕垂直排列 */
+    }
+    button {
+        width: 100%; /* 按鈕佔滿寬度 */
+    }
+}
