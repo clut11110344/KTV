@@ -22,9 +22,6 @@
     --li-text-color: #495057; /* 列表項文字顏色 */
     --link-color: #007bff; /* 連結顏色 */
     --link-hover-color: #0056b3; /* 連結懸停 */
-    --copy-btn-bg: #28a745; /* 複製按鈕背景 */
-    --copy-btn-hover: #218838; /* 複製按鈕懸停 */
-    --copy-btn-copied: #17a2b8; /* 複製成功 */
     --status-loading-bg: #e0f2f7;
     --status-loading-text: #007bff;
     --status-success-bg: #d4edda;
@@ -57,9 +54,6 @@
         --li-text-color: #cccccc;
         --link-color: #81d4fa; /* 深色模式連結 */
         --link-hover-color: #4fc3f7;
-        --copy-btn-bg: #66bb6a; /* 深色模式複製按鈕 */
-        --copy-btn-hover: #81c784;
-        --copy-btn-copied: #4dd0e1;
         --status-loading-bg: #4a6c80;
         --status-loading-text: #90caf9;
         --status-success-bg: #4a6c4b;
@@ -135,7 +129,7 @@ input[type="text"] {
     outline: none;
     transition: all 0.3s ease;
     box-shadow: inset 0 1px 3px var(--input-shadow-inset);
-    min-width: 150px;
+    /* 移除 min-width，讓 flex-grow 更好地控制 */
     background-color: var(--container-bg); /* 背景色與容器一致 */
     color: var(--text-color); /* 文字顏色 */
 }
@@ -283,49 +277,33 @@ button:disabled {
     transition: color 0.3s ease;
 }
 
-.results-container li a {
+/* 針對「點此觀看」連結的樣式，確保它可見 */
+.results-container li a.watch-link { 
     color: var(--link-color);
     text-decoration: none;
     word-break: break-all;
-    font-size: 0.9em;
+    font-size: 1.0em; /* 調整為 1em，讓它在手機上更清晰 */
     transition: color 0.3s ease;
+    
+    display: inline-flex; /* 使用 flexbox 讓圖示和文字水平排列並垂直居中 */
+    align-items: center; /* 垂直居中對齊 */
+    gap: 5px; /* 圖示與文字之間的間距 */
+    line-height: 1.3; /* 確保足夠的行高 */
+    /* 移除 min-width 和 min-height，讓內容和 padding 控制大小 */
+    text-align: left; /* 文字左對齊 */
 }
 
-.results-container li a:hover {
+.results-container li a.watch-link:hover {
     text-decoration: underline;
     color: var(--link-hover-color);
 }
 
-/* 複製按鈕樣式 */
-.copy-button {
-    background-color: var(--copy-btn-bg);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 10px;
-    font-size: 0.8em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    align-self: flex-end; /* 靠右對齊 */
-    margin-top: 5px;
-    white-space: nowrap;
-    display: flex; /* 讓圖示和文字水平排列 */
-    align-items: center; /* 垂直居中 */
-    gap: 5px; /* 圖示與文字間距 */
+/* 確保 Bootstrap Icons 本身有正確大小 */
+.bi {
+    vertical-align: -0.125em; /* 調整圖示垂直對齊 */
+    font-size: 1em; /* 確保圖示大小與父元素字體大小一致 */
 }
 
-.copy-button:hover {
-    background-color: var(--copy-btn-hover);
-}
-
-.copy-button.copied {
-    background-color: var(--copy-btn-copied); /* 複製成功後變色 */
-}
-
-.copy-button:disabled {
-    background-color: #cccccc; /* 禁用時的背景色 */
-    cursor: not-allowed;
-}
 
 .initial-info {
     text-align: center;
@@ -382,12 +360,9 @@ button:disabled {
         font-size: 0.9em;
         padding: 10px 0;
     }
-    .results-container li a {
-        font-size: 0.85em;
-    }
-    .copy-button {
-        padding: 5px 8px;
-        font-size: 0.75em;
+    /* 針對手機上「點此觀看」連結的字體大小調整 */
+    .results-container li a.watch-link {
+        font-size: 1.0em; /* 在手機上調整為較大的字體 */
     }
 }
 
