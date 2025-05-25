@@ -1,126 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KTV 搜尋</title>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #output { margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <h1>KTV 搜尋</h1>
-    <input type="text" id="songInput" placeholder="請輸入要搜尋的歌名">
-    <button onclick="searchSong()">搜尋</button>
-    <div id="output"></div>
-
-    <script>
-        async function main() {
-            let pyodide = await loadPyodide();
-            await pyodide.loadPackage("micropip");
-            await pyodide.runPythonAsync(`
-                def parse_performances():
-                    performances = {}
-                    current_session = ""
-                    current_url = ""
-                    
-                    # 讀取檔案內容
-                    try:
-                        import pyodide
-                        with open('song_list.txt', 'r', encoding='utf-8') as file:
-                            content = file.read()
-                            lines = content.split('\n')
-                            print("成功讀取檔案，共有", len(lines), "行")
-                    except Exception as e:
-                        print(f"讀取檔案時發生錯誤：{str(e)}")
-                        return {}
-                    
-                    for line in lines:
-                        try:
-                            line = line.strip()
-                            if not line:  # 跳過空行
-                                continue
-                                
-                            if "https://youtu.be/" in line:
-                                parts = line.split()
-                                if len(parts) >= 2:
-                                    if "補錄" in line:
-                                        current_session = parts[0] + " 補錄"
-                                    else:
-                                        current_session = parts[0]
-                                    current_url = parts[-1]
-                                    print(f"處理到新的 session: {current_session}")
-                            elif ":" in line and not line.startswith("#"):
-                                parts = line.split(" ", 1)
-                                if len(parts) == 2:
-                                    timestamp, song = parts
-                                    if song not in performances:
-                                        performances[song] = []
-                                    performances[song].append({
-                                        "session": current_session,
-                                        "url": current_url,
-                                        "timestamp": timestamp
-                                    })
-                        except Exception as e:
-                            print(f"處理行時發生錯誤：{str(e)}")
-                            continue
-                    
-                    print(f"總共處理了 {len(performances)} 首歌曲")
-                    return performances
-
-                def search_song(song_name):
-                    try:
-                        performances = parse_performances()
-                        
-                        if not performances:
-                            print("無法讀取歌曲資料")
-                            return
-                            
-                        if song_name in performances:
-                            print(f"\\n找到 '{song_name}' 的演唱記錄：")
-                            for perf in performances[song_name]:
-                                print(f"{perf['session']} - {perf['url']}?t={time_to_seconds(perf['timestamp'])}")
-                        else:
-                            print(f"\\n找不到 '{song_name}' 的演唱記錄")
-                    except Exception as e:
-                        print(f"搜尋時發生錯誤：{str(e)}")
-
-                def time_to_seconds(time_str):
-                    if ':' not in time_str:
-                        return 0
-                    
-                    parts = time_str.split(':')
-                    if len(parts) == 2:
-                        return int(parts[0]) * 60 + int(parts[1])
-                    elif len(parts) == 3:
-                        return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-                    return 0
-            `);
-            window.pyodide = pyodide;
-        }
-
-        function searchSong() {
-            const songName = document.getElementById('songInput').value.trim();
-            const output = document.getElementById('output');
-            output.innerHTML = '';
-            
-            if (!songName) {
-                output.innerHTML = '請輸入要搜尋的歌名';
-                return;
-            }
-            
-            window.pyodide.runPythonAsync(`
-                search_song("${songName.replace(/"/g, '\\"')}")
-            `).then(result => {
-                output.innerHTML = result;
-            }).catch(error => {
-                output.innerHTML = '搜尋時發生錯誤：' + error.message;
-            });
-        }
-
-        main();
-    </script>
-</body>
-</html> 
+ <html lang="zh-TW">
+ <head>
+  <meta charset="UTF-8">
+  <title>歌曲搜尋</title>
+  <link rel="stylesheet" href="style.css">
+ </head>
+ <body>
+  <h1>歌曲搜尋</h1>
+  <input type="file" id="songListFile" accept=".txt">
+  <input type="text" id="songNameInput" placeholder="請輸入歌名">
+  <button id="searchButton">搜尋</button>
+  <div id="searchResults"></div>
+  <script src="script.js"></script>
+ </body>
+ </html>
