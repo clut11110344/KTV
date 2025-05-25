@@ -5,12 +5,12 @@ let performancesData = {};
 // 請將您的 song_list.txt 檔案的完整內容，貼到下方三引號之間
 // 範例：
 // const EMBEDDED_SONG_LIST_CONTENT = `
-// 2023-01-01 現場表演 https://www.youtube.com/watch?v=dQw4w9WgXcQ
+// 2023-01-01 現場表演 https://www.youtube.com/watch?v=YOUR_VIDEO_ID`。2
 // 00:05 歌曲A
 // 01:30 歌曲B
 // 02:45 歌曲C
 //
-// 2023-01-15 補錄 https://www.youtube.com/watch?v=qSDN_jV8f9E
+// 2023-01-15 補錄 https://www.youtube.com/watch?v=YOUR_VIDEO_ID`。3
 // 00:10 歌曲D
 // 01:00 歌曲A
 // # 這是註解
@@ -742,13 +742,15 @@ function searchSong(songName) {
                 const seconds = timeToSeconds(perf.timestamp);
                 const youtubeUrl = `${perf.url}?t=${seconds}`;
 
+                // 修改為「點此觀看」按鈕
                 li.innerHTML = `
                     <strong>${perf.session}</strong><br>
-                    <a href="${youtubeUrl}" target="_blank" class="watch-link">
-                        <i class="bi bi-youtube"></i> 點此觀看
-                    </a>
                 `;
-                // 原本的複製按鈕邏輯已移除
+                const watchButton = document.createElement('button');
+                watchButton.className = 'watch-button'; // 新增一個 class 用於樣式
+                watchButton.innerHTML = '<i class="bi bi-youtube"></i> 點此觀看';
+                watchButton.onclick = () => window.open(youtubeUrl, '_blank'); // 點擊按鈕在新視窗打開連結
+                li.appendChild(watchButton); // 將按鈕添加到 li 中
 
                 ul.appendChild(li);
             });

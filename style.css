@@ -129,7 +129,6 @@ input[type="text"] {
     outline: none;
     transition: all 0.3s ease;
     box-shadow: inset 0 1px 3px var(--input-shadow-inset);
-    /* 移除 min-width，讓 flex-grow 更好地控制 */
     background-color: var(--container-bg); /* 背景色與容器一致 */
     color: var(--text-color); /* 文字顏色 */
 }
@@ -277,25 +276,46 @@ button:disabled {
     transition: color 0.3s ease;
 }
 
-/* 針對「點此觀看」連結的樣式，確保它可見 */
-.results-container li a.watch-link { 
-    color: var(--link-color);
-    text-decoration: none;
-    word-break: break-all;
-    font-size: 1.0em; /* 調整為 1em，讓它在手機上更清晰 */
-    transition: color 0.3s ease;
-    
-    display: inline-flex; /* 使用 flexbox 讓圖示和文字水平排列並垂直居中 */
-    align-items: center; /* 垂直居中對齊 */
-    gap: 5px; /* 圖示與文字之間的間距 */
-    line-height: 1.3; /* 確保足夠的行高 */
-    /* 移除 min-width 和 min-height，讓內容和 padding 控制大小 */
-    text-align: left; /* 文字左對齊 */
+/* 「點此觀看」按鈕的樣式 */
+.watch-button {
+    /* 繼承通用按鈕的樣式基礎 */
+    padding: 8px 15px; /* 比主按鈕小一點 */
+    background-color: #dc3545; /* YouTube 紅色 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em; /* 比主按鈕小一點 */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    display: flex; /* 讓圖示和文字水平排列 */
+    align-items: center; /* 垂直居中 */
+    gap: 5px; /* 圖示與文字間距 */
+    justify-content: center; /* 居中 */
+    margin-top: 8px; /* 與上方文字的間距 */
+    align-self: flex-start; /* 靠左對齊 */
+    max-width: fit-content; /* 讓按鈕寬度只夠內容 */
 }
 
-.results-container li a.watch-link:hover {
-    text-decoration: underline;
-    color: var(--link-hover-color);
+.watch-button:hover {
+    background-color: #c82333; /* 懸停時深一點的紅色 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.watch-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色模式下的「點此觀看」按鈕顏色 */
+@media (prefers-color-scheme: dark) {
+    .watch-button {
+        background-color: #ef5350; /* 深色模式下的 YouTube 紅色 */
+    }
+    .watch-button:hover {
+        background-color: #ff7961;
+    }
 }
 
 /* 確保 Bootstrap Icons 本身有正確大小 */
@@ -333,12 +353,21 @@ button:disabled {
         flex-direction: column; /* 輸入框和按鈕垂直排列 */
         gap: 8px; /* 調整垂直間距 */
     }
-    input[type="text"],
+    /* 核心修正：讓輸入框在小螢幕上完全佔滿寬度，並確保沒有過多餘白 */
+    input[type="text"] {
+        width: 100%; /* 強制佔滿容器寬度 */
+        flex-basis: auto; /* 讓 flex 項目根據內容調整 */
+        flex-shrink: 1; /* 允許縮小 */
+        box-sizing: border-box; /* 確保 padding 不會導致溢出 */
+    }
+    /* 核心修正：讓按鈕在小螢幕上完全佔滿寬度 */
     button {
-        width: 100%; /* 輸入框和按鈕佔滿寬度 */
+        width: 100%; /* 強制佔滿容器寬度 */
+        box-sizing: border-box; /* 確保 padding 不會導致溢出 */
         padding: 10px 12px; /* 調整內邊距 */
         font-size: 0.95em;
     }
+
     .status-message {
         padding: 10px;
         font-size: 0.9em;
@@ -360,9 +389,10 @@ button:disabled {
         font-size: 0.9em;
         padding: 10px 0;
     }
-    /* 針對手機上「點此觀看」連結的字體大小調整 */
-    .results-container li a.watch-link {
-        font-size: 1.0em; /* 在手機上調整為較大的字體 */
+    /* 針對手機上「點此觀看」按鈕的字體大小調整 */
+    .watch-button {
+        font-size: 0.95em; /* 調整為更適合手機的字體大小 */
+        padding: 6px 12px; /* 調整內邊距 */
     }
 }
 
