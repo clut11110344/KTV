@@ -1,109 +1,187 @@
 /* style.css */
 
-/* 通用樣式 */
+/* --- 基本變數定義 (方便管理顏色) --- */
+:root {
+    /* 淺色模式 */
+    --body-bg: #e9ecef; /* 頁面背景 */
+    --container-bg: #ffffff; /* 容器背景 */
+    --text-color: #343a40; /* 主要文字顏色 */
+    --header-color: #0056b3; /* 標題顏色 */
+    --description-color: #6c757d; /* 說明文字顏色 */
+    --border-color: #ced4da; /* 輸入框邊框 */
+    --box-shadow-light: rgba(0, 0, 0, 0.15); /* 容器陰影 */
+    --input-shadow-inset: rgba(0, 0, 0, 0.05); /* 輸入框內陰影 */
+    --button-bg-primary: #007bff; /* 主要按鈕背景 */
+    --button-hover-primary: #0056b3; /* 主要按鈕懸停 */
+    --button-shadow-primary: rgba(0, 0, 0, 0.1);
+    --button-bg-secondary: #6c757d; /* 次要按鈕背景 */
+    --button-hover-secondary: #5a6268; /* 次要按鈕懸停 */
+    --results-bg: #f8f9fa; /* 結果區塊背景 */
+    --results-border: #e9ecef; /* 結果區塊邊框 */
+    --li-border: #dee2e6; /* 列表項分隔線 */
+    --li-text-color: #495057; /* 列表項文字顏色 */
+    --link-color: #007bff; /* 連結顏色 */
+    --link-hover-color: #0056b3; /* 連結懸停 */
+    --copy-btn-bg: #28a745; /* 複製按鈕背景 */
+    --copy-btn-hover: #218838; /* 複製按鈕懸停 */
+    --copy-btn-copied: #17a2b8; /* 複製成功 */
+    --status-loading-bg: #e0f2f7;
+    --status-loading-text: #007bff;
+    --status-success-bg: #d4edda;
+    --status-success-text: #155724;
+    --status-warning-bg: #fff3cd;
+    --status-warning-text: #856404;
+    --status-error-bg: #f8d7da;
+    --status-error-text: #721c24;
+}
+
+/* --- 深色模式設定 --- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --body-bg: #2c2c2c; /* 深色背景 */
+        --container-bg: #3a3a3a; /* 深色容器 */
+        --text-color: #e0e0e0; /* 淺色文字 */
+        --header-color: #90caf9; /* 淺藍標題 */
+        --description-color: #bbbbbb;
+        --border-color: #555555;
+        --box-shadow-light: rgba(0, 0, 0, 0.3);
+        --input-shadow-inset: rgba(255, 255, 255, 0.05);
+        --button-bg-primary: #4a90e2; /* 深色模式主按鈕 */
+        --button-hover-primary: #6ab7ff;
+        --button-shadow-primary: rgba(0, 0, 0, 0.2);
+        --button-bg-secondary: #555555;
+        --button-hover-secondary: #777777;
+        --results-bg: #303030; /* 深色結果區塊 */
+        --results-border: #444444;
+        --li-border: #4a4a4a;
+        --li-text-color: #cccccc;
+        --link-color: #81d4fa; /* 深色模式連結 */
+        --link-hover-color: #4fc3f7;
+        --copy-btn-bg: #66bb6a; /* 深色模式複製按鈕 */
+        --copy-btn-hover: #81c784;
+        --copy-btn-copied: #4dd0e1;
+        --status-loading-bg: #4a6c80;
+        --status-loading-text: #90caf9;
+        --status-success-bg: #4a6c4b;
+        --status-success-text: #a5d6a7;
+        --status-warning-bg: #80774c;
+        --status-warning-text: #ffeb3b;
+        --status-error-bg: #804b4c;
+        --status-error-text: #ef9a9a;
+    }
+}
+
+/* --- 通用樣式 --- */
 body {
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    background-color: #e9ecef; /* 淺灰色背景 */
-    color: #343a40; /* 深灰色文字 */
+    background-color: var(--body-bg);
+    color: var(--text-color);
     line-height: 1.6;
     margin: 0;
     padding: 20px;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 從頂部開始排列 */
+    align-items: flex-start;
     min-height: 100vh;
     box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease; /* 深色模式平滑過渡 */
 }
 
 .container {
-    background-color: #ffffff;
+    background-color: var(--container-bg);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* 更明顯的陰影 */
+    box-shadow: 0 8px 25px var(--box-shadow-light);
     max-width: 800px;
     width: 100%;
     box-sizing: border-box;
-    margin-top: 20px; /* 增加頂部間距 */
+    margin-top: 20px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* 標題 */
 h1 {
     text-align: center;
-    color: #0056b3; /* 藍色標題 */
+    color: var(--header-color);
     margin-bottom: 15px;
     font-size: 2.2em;
     font-weight: 600;
+    transition: color 0.3s ease;
 }
 
 .description {
     text-align: center;
-    color: #6c757d;
+    color: var(--description-color);
     margin-bottom: 30px;
     font-size: 1.1em;
+    transition: color 0.3s ease;
 }
 
 /* 搜尋區塊 */
 .search-controls {
     display: flex;
-    gap: 10px; /* 輸入框和按鈕之間的間距 */
+    gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* 小螢幕時自動換行 */
-    justify-content: center; /* 水平居中 */
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 input[type="text"] {
-    flex-grow: 1; /* 讓輸入框佔滿剩餘空間 */
+    flex-grow: 1;
     padding: 12px 15px;
-    border: 1px solid #ced4da; /* 淺灰色邊框 */
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1em;
     outline: none;
-    transition: all 0.3s ease; /* 平滑過渡 */
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* 內陰影 */
-    min-width: 150px; /* 確保在小螢幕下也有最小寬度 */
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px var(--input-shadow-inset);
+    min-width: 150px;
+    background-color: var(--container-bg); /* 背景色與容器一致 */
+    color: var(--text-color); /* 文字顏色 */
 }
 
 input[type="text"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* 聚焦時的藍色光暈 */
+    border-color: var(--button-bg-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 button {
     padding: 12px 25px;
-    background-color: #007bff; /* 主按鈕藍色 */
+    background-color: var(--button-bg-primary);
     color: white;
     border: none;
     border-radius: 6px;
     font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    white-space: nowrap; /* 防止按鈕文字換行 */
+    box-shadow: 0 2px 5px var(--button-shadow-primary);
+    white-space: nowrap;
 }
 
 button:hover {
-    background-color: #0056b3;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    background-color: var(--button-hover-primary);
+    box-shadow: 0 4px 10px var(--button-shadow-primary);
 }
 
 button:active {
     transform: translateY(1px);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px var(--button-shadow-primary);
 }
 
 button:disabled {
-    background-color: #cccccc;
+    background-color: #cccccc !important; /* 強制覆蓋 */
     cursor: not-allowed;
     box-shadow: none;
+    color: #888888; /* 禁用時的文字顏色 */
 }
 
 /* 次要按鈕樣式 */
 .secondary-button {
-    background-color: #6c757d; /* 灰色 */
+    background-color: var(--button-bg-secondary);
 }
 
 .secondary-button:hover {
-    background-color: #5a6268;
+    background-color: var(--button-hover-secondary);
 }
 
 /* 狀態訊息 */
@@ -114,93 +192,98 @@ button:disabled {
     margin-bottom: 20px;
     font-weight: bold;
     opacity: 1;
-    transition: opacity 0.5s ease; /* 訊息淡入淡出 */
+    transition: opacity 0.5s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .status-message.loading {
-    background-color: #e0f2f7; /* 載入中淺藍 */
-    color: #007bff;
+    background-color: var(--status-loading-bg);
+    color: var(--status-loading-text);
 }
 .status-message.success {
-    background-color: #d4edda; /* 成功綠色 */
-    color: #155724;
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
 }
 .status-message.warning {
-    background-color: #fff3cd; /* 警告黃色 */
-    color: #856404;
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning-text);
 }
 .status-message.error {
-    background-color: #f8d7da; /* 錯誤紅色 */
-    color: #721c24;
+    background-color: var(--status-error-bg);
+    color: var(--status-error-text);
 }
 .status-message.hidden {
     opacity: 0;
     height: 0;
     padding: 0;
     margin: 0;
-    overflow: hidden; /* 確保內容徹底隱藏 */
+    overflow: hidden;
 }
 
 /* 搜尋結果 */
 .results-container {
-    background-color: #f8f9fa; /* 淺背景色 */
-    border: 1px solid #e9ecef;
+    background-color: var(--results-bg);
+    border: 1px solid var(--results-border);
     border-radius: 8px;
     padding: 20px;
-    min-height: 120px; /* 增加最小高度 */
-    overflow-y: auto; /* 超過內容時顯示滾動條 */
-    max-height: 450px; /* 最大高度 */
-    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05); /* 內陰影 */
+    min-height: 120px;
+    overflow-y: auto;
+    max-height: 450px;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .results-container h3 {
-    color: #2c3e50;
+    color: var(--header-color); /* 與主標題顏色一致 */
     margin-top: 0;
     margin-bottom: 15px;
     text-align: center;
     font-size: 1.3em;
+    transition: color 0.3s ease;
 }
 
 .results-container ul {
-    list-style: none; /* 移除列表符號 */
+    list-style: none;
     padding: 0;
     margin: 0;
 }
 
 .results-container li {
     padding: 12px 0;
-    border-bottom: 1px dashed #dee2e6; /* 虛線分隔 */
+    border-bottom: 1px dashed var(--li-border);
     font-size: 0.95em;
     display: flex;
-    flex-direction: column; /* 文字和連結垂直排列 */
-    word-break: break-word; /* 長連結自動換行 */
+    flex-direction: column;
+    word-break: break-word;
+    transition: border-color 0.3s ease;
 }
 
 .results-container li:last-child {
-    border-bottom: none; /* 最後一項沒有底線 */
+    border-bottom: none;
 }
 
 .results-container li strong {
-    color: #495057; /* 場次名稱顏色 */
+    color: var(--li-text-color);
     font-weight: 600;
-    margin-bottom: 5px; /* 場次和連結的間距 */
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
 }
 
 .results-container li a {
-    color: #007bff;
+    color: var(--link-color);
     text-decoration: none;
     word-break: break-all;
-    font-size: 0.9em; /* 連結字體小一點 */
+    font-size: 0.9em;
+    transition: color 0.3s ease;
 }
 
 .results-container li a:hover {
     text-decoration: underline;
-    color: #0056b3;
+    color: var(--link-hover-color);
 }
 
 /* 複製按鈕樣式 */
 .copy-button {
-    background-color: #28a745; /* 綠色 */
+    background-color: var(--copy-btn-bg);
     color: white;
     border: none;
     border-radius: 4px;
@@ -209,52 +292,103 @@ button:disabled {
     cursor: pointer;
     transition: background-color 0.3s ease;
     align-self: flex-end; /* 靠右對齊 */
-    margin-top: 5px; /* 與連結的間距 */
+    margin-top: 5px;
     white-space: nowrap;
 }
 
 .copy-button:hover {
-    background-color: #218838;
+    background-color: var(--copy-btn-hover);
 }
 
 .copy-button.copied {
-    background-color: #17a2b8; /* 複製成功後變色 */
+    background-color: var(--copy-btn-copied); /* 複製成功後變色 */
 }
 
 .copy-button:disabled {
-    background-color: #cccccc;
+    background-color: #cccccc; /* 禁用時的背景色 */
     cursor: not-allowed;
 }
 
 .initial-info {
     text-align: center;
-    color: #6c757d;
+    color: var(--description-color);
     font-style: italic;
     padding: 20px;
 }
 
-/* 手機響應式調整 */
-@media (max-width: 600px) {
+/* --- 手機響應式調整 --- */
+@media (max-width: 768px) { /* 平板和手機 */
     body {
-        padding: 10px;
+        padding: 15px;
     }
     .container {
-        padding: 20px;
-        margin-top: 10px;
+        padding: 25px;
+        margin-top: 15px;
+        border-radius: 10px; /* 小螢幕圓角小一點 */
     }
     h1 {
         font-size: 1.8em;
     }
+    .description {
+        font-size: 1em;
+        margin-bottom: 20px;
+    }
     .search-controls {
         flex-direction: column; /* 輸入框和按鈕垂直排列 */
+        gap: 8px; /* 調整垂直間距 */
     }
     input[type="text"],
-    button,
-    .secondary-button {
+    button {
         width: 100%; /* 輸入框和按鈕佔滿寬度 */
-        margin: 0; /* 移除 flex 引起的間距 */
+        padding: 10px 12px; /* 調整內邊距 */
+        font-size: 0.95em;
     }
-    .search-controls button + button {
-        margin-top: 10px; /* 垂直排列時按鈕間距 */
+    .status-message {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .results-container {
+        padding: 15px;
+        min-height: 100px;
+        max-height: 350px;
+    }
+    .results-container h3 {
+        font-size: 1.2em;
+    }
+    .results-container li {
+        font-size: 0.9em;
+        padding: 10px 0;
+    }
+    .results-container li a {
+        font-size: 0.85em;
+    }
+    .copy-button {
+        padding: 5px 8px;
+        font-size: 0.75em;
+    }
+}
+
+@media (max-width: 480px) { /* 更小的手機 */
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+    h1 {
+        font-size: 1.6em;
+    }
+    .description {
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+    .status-message {
+        margin-bottom: 15px;
+    }
+    .results-container {
+        min-height: 80px;
+        max-height: 300px;
     }
 }
