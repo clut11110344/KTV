@@ -18,7 +18,7 @@ let performancesData = {};
 // `;
 // 請確保您的 YouTube 連結是真實有效的！
 const EMBEDDED_SONG_LIST_CONTENT = `
-第一次 https://youtu.be/y_nuffqSh3c
+第1次 https://youtu.be/y_nuffqSh3c
 0:00 心牆
 2:05 下一個天亮
 4:09 含淚跳恰恰
@@ -26,7 +26,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 8:37 心狠手辣
 10:34 夢中的情話
 
-第二次 https://youtu.be/ZL9VtkxKBuI
+第2次 https://youtu.be/ZL9VtkxKBuI
 00:01 愛情的騙子我問你
 4:02 愛情限時批
 5:28 我不要
@@ -89,7 +89,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 2:57:00 怎麼還不愛
 3:01:19 半醉半清醒
 
-第三次 https://youtu.be/d9--rBcJVtE
+第3次 https://youtu.be/d9--rBcJVtE
 00:00 DNA
 3:36 追追追
 8:38 雨蝶
@@ -157,11 +157,11 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 4:12:32 模特  
 4:14:36 夢中的情話
 
-第三次 補錄 https://youtu.be/9iv4yWvFYD0
+第3次 補錄 https://youtu.be/9iv4yWvFYD0
 0:00 半夢半清醒
 1:52 雨季
 
-第四次 https://youtu.be/23HGs7q399E
+第4次 https://youtu.be/23HGs7q399E
 0:00 start
 5:39 DNA
 9:19 是我不夠好
@@ -215,7 +215,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 3:13:53 在樹上唱歌
 3:17:48 粉筆和塗鴉
 
-第四次-2 https://youtu.be/TXyMLCc83jQ
+第4次-2 https://youtu.be/TXyMLCc83jQ
 3:13 練習愛情
 8:17 亞特蘭提斯
 11:47 1/2
@@ -242,7 +242,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:06:37 失戀無罪
 1:08:25 夢中的情話
 
-第五次 https://youtu.be/BJB5rPzZhck
+第5次 https://youtu.be/BJB5rPzZhck
 4:45 臉盲症
 8:07 雙面妲己
 14:28 沒有你的明天
@@ -262,7 +262,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:03:27 阿伯現身
 
 
-第六次(SHE) https://youtu.be/kePfepN6zoA
+第6次(SHE) https://youtu.be/kePfepN6zoA
 0:13 super star
 4:08 眉飛色舞
 5:25 卡路里
@@ -297,7 +297,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 2:03:11 光年之外
 2:07:06 下雨天
 
-第七次 https://youtu.be/yNzpqqKSPDM
+第7次 https://youtu.be/yNzpqqKSPDM
 0:07 DNA
 3:46 愛情的騙子我問你
 8:19 我不要
@@ -324,7 +324,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:32:08 夠愛
 1:36:53 夢中的情話
 
-第八次 https://youtu.be/6F64q6443XI
+第8次 https://youtu.be/6F64q6443XI
 2:14 Mr.Q
 3:16 秋雨彼一暝 
 8:18 傷心酒店
@@ -339,7 +339,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 42:37 夢中的情話
 47:02 粉筆和塗鴉
 
-第九次 https://youtu.be/_pUO5yR2J5w
+第9次 https://youtu.be/_pUO5yR2J5w
 0:00 標準美
 2:59 來追我男友吧
 4:13 Fairy Temple
@@ -406,7 +406,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 2:56:47 把愛收好
 3:01:01 夢中的情話
 
-第十次 https://youtu.be/_R7rMMX-DSA
+第10次 https://youtu.be/_R7rMMX-DSA
 0:03 DNA
 3:52 途中
 8:11 有沒有
@@ -523,6 +523,44 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 1:00:07 煎熬
 1:04:46 亞特蘭提斯 
 1:08:26 夢中的情話
+
+第13次 https://youtu.be/SpjdeTcc50A
+0:00 lin極限
+13:37 DNA
+17:24 卡路里
+21:13 粉筆與塗鴉
+25:55 星火
+31:02 lydia
+35:02 月牙灣
+40:19 1/2
+44:20 夠愛
+49:19 你敢不敢
+53:29 是他不配
+57:36 怎麼還不愛
+1:01:43 你眼中的我
+1:05:58 在樹上唱歌
+1:10:00 下一個天亮
+1:15:07 心牆
+1:19:02 不哭
+1:23:31 雨季
+1:28:14 愛存在
+1:32:44 踮起腳尖愛
+1:38:03 煎熬
+1:44:02 明明愛你
+1:50:12 夠不著的你
+1:54:44 微加幸福
+1:56:47 好朋友只是朋友
+1:58:54 這樣愛你好可怕
+2:01:02 亞特蘭提斯
+2:02:32 不解釋親吻
+2:04:03 小姐請你給我愛
+2:07:17 雲中月圓
+2:09:11 秋雨彼一暝
+2:11:15 我不離開
+2:13:27 半醉半清醒
+2:15:29 返來我身邊
+2:17:28 傷心酒店
+2:19:27 夢中的情話
 `; // <-- 請在這裡貼上您的 song_list.txt 內容！
 
 
