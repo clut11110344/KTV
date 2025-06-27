@@ -840,7 +840,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 59:39 青春修練手冊
 1:03:53 crush on
 1:07:41 無眠
-1:11:35 靓仔
+1:11:35 靚仔
 1:16:01 新的心跳
 1:18:40 人生的歌
 1:24:15 你好不好
@@ -1195,8 +1195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("直接解析內嵌歌單完成。performancesData:", performancesData);
         
         if (loadingStatusDiv) {
-            // 自動計算場次數量
-            const sessionCount = Array.from(new Set(Object.values(performancesData).flat().map(perf => perf.session))).length;
+            // 直接從歌單內容統計場次數量（每個有網址的行算一場）
+            const sessionCount = EMBEDDED_SONG_LIST_CONTENT.split('\n').filter(line => line.trim().match(/https?:\/\//)).length;
             showStatusMessage(loadingStatusDiv, `歌曲資料已載入，共${sessionCount}次。`, 'success');
         }
     } catch (error) {
