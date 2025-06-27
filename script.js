@@ -1197,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loadingStatusDiv) {
             // 直接從歌單內容統計場次數量（每個有網址的行算一場）
             const sessionCount = EMBEDDED_SONG_LIST_CONTENT.split('\n').filter(line => line.trim().match(/https?:\/\//)).length;
-            showStatusMessage(loadingStatusDiv, `歌曲資料已載入，共${sessionCount}次。`, 'success');
+            showStatusMessage(loadingStatusDiv, `歌曲資料已載入，共${sessionCount}筆。`, 'success');
         }
     } catch (error) {
         if (loadingStatusDiv) {
