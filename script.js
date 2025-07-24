@@ -201,7 +201,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 2:12:30 我問天
 2:14:36 追追追
 2:16:26 FIESTA
-2:20:04 C’mon
+2:20:04 C'mon
 2:23:22 分手後不要做朋友
 2:25:46 3D舞力全失
 2:27:27 有點甜
@@ -769,7 +769,7 @@ const EMBEDDED_SONG_LIST_CONTENT = `
 2:06:42 UP
 2:08:42 該怎麼辦
 2:10:34 COCOCO
-2:11:53 Don’t Worry, Be Happy
+2:11:53 Don't Worry, Be Happy
 2:12:12 唯舞
 2:13:40 1/2
 2:17:50 Don't Stop the Music
@@ -1339,9 +1339,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("直接解析內嵌歌單完成。performancesData:", performancesData);
         
         if (loadingStatusDiv) {
-            // 直接從歌單內容統計場次數量（每個有網址的行算一場）
-            const sessionCount = EMBEDDED_SONG_LIST_CONTENT.split('\n').filter(line => line.trim().match(/https?:\/\//)).length;
-            showStatusMessage(loadingStatusDiv, `歌曲資料已載入，共${sessionCount}筆。`, 'success');
+            // 取得所有場次名稱，找出最大『第N次』
+            const sessionLines = EMBEDDED_SONG_LIST_CONTENT.split('\n').filter(line => line.trim().match(/https?:\/\//));
+            let maxSessionNum = 0;
+            sessionLines.forEach(line => {
+                const match = line.match(/第(\d+)次/);
+                if (match && match[1]) {
+                    const num = parseInt(match[1], 10);
+                    if (num > maxSessionNum) maxSessionNum = num;
+                }
+            });
+            if (maxSessionNum > 0) {
+                showStatusMessage(loadingStatusDiv, `歌曲資料已載入，最新為第${maxSessionNum}次`, 'success');
+            } else {
+                showStatusMessage(loadingStatusDiv, `歌曲資料已載入。`, 'success');
+            }
         }
     } catch (error) {
         if (loadingStatusDiv) {
