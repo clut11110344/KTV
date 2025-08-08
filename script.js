@@ -1059,7 +1059,7 @@ aespa 第23次 https://youtu.be/cAu45IJGwbY
 1:39:39 紅色高跟鞋
 1:43:05 唯舞
 1:46:24 如果可以
-1:51:08 陽光今天特別耀眼和諧
+1:51:08 陽光今天就是特別耀眼和諧
 1:54:46 煎熬
 1:59:04 colors
 2:01:58 倫敦的愛情
@@ -1117,7 +1117,7 @@ aespa 第23次 https://youtu.be/cAu45IJGwbY
 4:40:22 MAMMA MIA
 4:42:16 平衡木
 4:47:23 那不是雪中紅
-4:19:17 Gnarly
+4:49:17 Gnarly
 4:52:05 怎麼了
 4:56:59 Love wins all
 5:01:17 cotton candy
